@@ -298,9 +298,14 @@ class ContentsController extends AppController
         $file_name = $this->request->data['Content']['form_text_url']['name'];
         $file_tmp_name = $this->request->data['Content']['form_text_url']['tmp_name'];
 
-			  $file_url = $this->webroot.'text/'.$file_name; //	ファイルのURL
-
-        $file_path = '../webroot/text/';
+				if($this->request->data['Content']['kind'] == 'slide'){
+					$file_url = $this->webroot.'slide/'.$file_name;
+					$file_path = '../webroot/slide/';
+					$this->request->data['Content']['file_name'] = str_replace('.zip', '', $this->request->data['Content']['file_name']);
+				}else{
+			  	$file_url = $this->webroot.'text/'.$file_name; //	ファイルのURL
+        	$file_path = '../webroot/text/';
+				}
         move_uploaded_file($file_tmp_name, $file_path.$file_name);
 
         $this->request->data['Content']['text_url'] = $file_url;
@@ -371,6 +376,10 @@ class ContentsController extends AppController
 				$upload_extensions = (array)Configure::read('upload_movie_extensions');
 				$upload_maxsize = Configure::read('upload_movie_maxsize');
 				break;
+			case 'slide' :
+				$upload_extensions = (array)Configure::read('upload_slide_extensions');
+				$upload_maxsize = Configure::read('upload_slide_maxsize');
+				break;
 			default :
 				throw new NotFoundException(__('Invalid access'));
 		}
@@ -394,14 +403,23 @@ class ContentsController extends AppController
 
 			$new_name = date("YmdHis").$fileUpload->getExtension( $fileUpload->get_file_name() );	//	ファイル名：YYYYMMDDHHNNSS形式＋"既存の拡張子"
 
-			$file_name = WWW_ROOT."uploads".DS.$new_name;											//	ファイルのパス
-			$file_url = $this->webroot.'uploads/'.$new_name;										//	ファイルのURL
+			if($file_type == 'slide'){
+				$file_name = WWW_ROOT."slide".DS.$new_name;
+				$file_url  = $this->webroot.'slide/'.$new_name;
+			}else{
+				$file_name = WWW_ROOT."uploads".DS.$new_name;											//	ファイルのパス
+				$file_url = $this->webroot.'uploads/'.$new_name;										//	ファイルのURL
+			}
 
 			$result = $fileUpload->saveFile( $file_name );											//	ファイルの保存
 
 			if($result)																				//	結果によってメッセージを設定
 			{
-				$this->Flash->success('ファイルのアップロードが完了いたしました');
+				if($file_type == 'slide'){
+					$cmd = Configure::read('unzip_path').' -o '.$file_name.' -d '.WWW_ROOT."slide".DS;
+					$this->log(shell_exec($cmd));
+				}
+				$this->Flash->success('ファイルのアップロードが完了しました');
 				$mode = 'complete';
 			}
 			else

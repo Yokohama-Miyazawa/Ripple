@@ -14,6 +14,7 @@
 
 		$("#btnUpload").click(function(){
 			var val = $('input[name="data[Content][kind]"]:checked').val();
+			console.log(val);
 
 			if(!val)
 				return false;
@@ -53,7 +54,7 @@
 	function render()
 	{
 		var content_kind = $('input[name="data[Content][kind]"]:checked').val();
-		
+
 		document.getElementById("testURL").name = "data[Content][testURL]";
 		document.getElementById("textURL").name = "data[Content][url]";
 
@@ -90,10 +91,10 @@
 				$("#btnUpload").show();
 				break;
 			case 'test':
-				
+
 				document.getElementById("testURL").name = "data[Content][url]";
 				document.getElementById("textURL").name = "data[Content][textURL]";
-				
+
 				break;
       case 'textAndTest':
         CommonUtil.setRichTextEditor('#ContentBody', <?php echo (Configure::read('use_upload_image') ? 'true' : 'false')?>, '<?php echo $this->webroot ?>');
@@ -181,7 +182,7 @@
 
 				echo "<div class='kind kind-movie kind-url kind-file'>";
 				echo $this->Form->input('url',		array(
-					'label' => 'URL', 
+					'label' => 'URL',
 					'class' => 'form-control form-control-upload',
 					'id' => 'textURL'
 				));
@@ -205,7 +206,7 @@
   			echo "</div>";
 				echo "</div>";
 				echo $this->Form->input('url',		array(
-					'label' => 'URL', 
+					'label' => 'URL',
 					'class' => 'form-control',
 					'id' => 'testURL'
 				));
@@ -219,6 +220,12 @@
           'multiple'
 				));
 				*/
+				echo "</div>";
+
+				// スライド
+				echo "<div class='kind kind-slide'>";
+				echo $this->Form->input('file_name', array('label' => 'ファイル名', 'class' => 'form-control-filename', 'readonly' => 'readonly'));
+				echo "</div>";
 
 				echo $this->Form->input('timelimit', array(
 					'label' => '制限時間 (1-100分)',
